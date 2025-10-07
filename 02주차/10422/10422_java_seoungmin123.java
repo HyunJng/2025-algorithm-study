@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 public class Main {
 
     static int MAX = 2500; // 입력범위 5000 -> 괄호/2
@@ -15,11 +16,11 @@ public class Main {
         int T = Integer.parseInt(br.readLine());
         for (int i = 0; i < T; i++) {
             int L = Integer.parseInt(br.readLine());
-            ouput(L); //출력
+            output(L); //출력
         }
     }
 
-    private static void ouput(int L) {
+    private static void output(int L) {
         if (L % 2 == 1) {
             System.out.println(0);
         } else {
