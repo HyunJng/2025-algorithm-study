@@ -36,10 +36,6 @@ public class Main {
         }
     }
 
-    static void solution() {
-        backtrack(a[0], 1);
-    }
-
     static void solution(String[] args) throws IOException {
         // System.setIn(new FileInputStream("src/input.txt"));
         Scanner sc = new Scanner(System.in);
@@ -56,7 +52,7 @@ public class Main {
             cs[i] = sc.nextInt();
         }
 
-        solution();
+        backtrack(a[0], 1);
         System.out.println(max);
         System.out.println(min);
     }
