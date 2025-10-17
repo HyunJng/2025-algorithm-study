@@ -6,7 +6,7 @@ public class Main {
     static int answer;
     static int[] location;
 
-    static void bfs(int depth) {
+    static void dfs(int depth) {
         if (depth == n) {
             answer++;
             return;
@@ -41,7 +41,7 @@ public class Main {
 
         for (int i = 0; i < n; i++) {
             location[0] = i;
-            bfs(1);
+            dfs(1);
         }
 
         System.out.println(answer);
