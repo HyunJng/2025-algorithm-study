@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class ans1865 {
+public class Main {
     static int TC, N, M, W;
     static List<Edge> edges;
     static int[] dist;

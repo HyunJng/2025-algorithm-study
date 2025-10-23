@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class ans1219 {
+public class Main {
 
     static int N, start, end, M;
     static int[] cityCost;
