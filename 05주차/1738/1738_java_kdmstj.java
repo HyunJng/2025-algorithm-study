@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class ans1738 {
+public class Main {
 
     static int N, M;
     static List<Edge> edges;
