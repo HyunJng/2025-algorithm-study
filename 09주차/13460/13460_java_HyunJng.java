@@ -27,7 +27,6 @@ public class Main {
 
     public static int solution() {
         Queue<Vector> queue = new LinkedList<>();
-        int result = Integer.MAX_VALUE;
         for (int[] move : moving) {
             queue.add(new Vector(move[0], move[1], 1,null));
         }
@@ -36,10 +35,8 @@ public class Main {
             Vector target = queue.poll();
             char[][] testMap = new char[N][M];
             int testCase = checkingTestCase(target, testMap);
-            if(testCase != 0) {
-                result = (testCase > 0)  ? Math.min(result, testCase) : result;
-                continue;
-            }
+            if(testCase > 0) return testCase;
+            else if(testCase != 0) continue;
 
             for (int[] move : moving) {
                 if((target.x == move[0] && target.y == move[1]) ||
@@ -49,7 +46,7 @@ public class Main {
                 queue.add(new Vector(move[0], move[1], target.level + 1, target));
             }
         }
-        return (result == Integer.MAX_VALUE) ? -1 : result;
+        return -1;
     }
 
     public static int checkingTestCase(Vector target, char[][] testMap) {
