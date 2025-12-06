@@ -1,89 +1,163 @@
+// package org.example;
+
 import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N, M, answer, safeArea, WALL_COUNT = 3;
-    // 0-index
-    static int map[][];
-    static boolean visited[][];
-    // y * M + x
-    static Set<Integer> visitedWall = new HashSet<>();
-    static int[] dx = { -1, 1, 0, 0 };
-    static int[] dy = { 0, 0, -1, 1 };
+    static int n, m, answer;
+    static char[][] map;
+    static final char WALL = '#', EMPTY = '.', RED = 'R', BLUE = 'B', HOLE = 'O';
+    static final int UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3, MAX_MOVE = 10;
+    static final int[] dx = { 0, 0, -1, 1 };
+    static final int[] dy = { -1, 1, 0, 0 };
+    static ArrayList<Integer> move;
 
-    static int dfs(int x, int y) {
-        visited[y][x] = true;
-        int infected = 1;
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if (nx < 0 || nx >= M || ny < 0 || ny >= N ||
-                    visited[ny][nx] ||
-                    map[ny][nx] != 0 ||
-                    visitedWall.contains(ny * M + nx)) {
-                continue;
+    // 한 개의 구슬을 dir 방향으로 끝까지 굴림
+    // 리턴: [최종 x, 최종 y, 구멍에 빠졌으면 1, 아니면 0]
+    static int[] moveBall(int x, int y, int dir, char color, char[][] board) {
+        int cx = x;
+        int cy = y;
+
+        board[cy][cx] = EMPTY;
+
+        while (true) {
+            int nx = cx + dx[dir];
+            int ny = cy + dy[dir];
+            char next = board[ny][nx];
+
+            if (next == WALL || next == RED || next == BLUE) {
+                break;
             }
-            infected += dfs(nx, ny);
+
+            if (next == HOLE) {
+                return new int[] { nx, ny, 1 };
+            }
+
+            cx = nx;
+            cy = ny;
         }
-        return infected;
+
+        board[cy][cx] = color;
+        return new int[] { cx, cy, 0 };
     }
 
-    static void checkWall() {
-        if (visitedWall.size() == WALL_COUNT) {
-            // 해당 벽을 사용해서 탐색 시작하기
-            visited = new boolean[N][M];
-            int infected = 0;
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (map[i][j] == 2) {
-                        int newInfected = dfs(j, i) - 1;
-                        infected += newInfected;
-                    }
+    static void moveBoard() {
+        char[][] copyMap = new char[n][m];
+        // red x,y, blue x,y
+        int[] location = new int[4];
+
+        // 맵 복사 및 초기 위치 탐색
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                copyMap[i][j] = map[i][j];
+                if (map[i][j] == RED) {
+                    location[0] = j;
+                    location[1] = i;
+                } else if (map[i][j] == BLUE) {
+                    location[2] = j;
+                    location[3] = i;
                 }
             }
-            answer = Math.max(answer, safeArea - infected);
+        }
+
+        // 최대 10번까지 기울이기
+        for (int i = 0; i < MAX_MOVE; i++) {
+            int nowMove = move.get(i);
+
+            if (answer != -1 && answer <= i)
+                return;
+
+            int dir = nowMove;
+            boolean redFirst;
+            // 어떤 구슬을 먼저 굴릴지 결정 (겹치는 이슈)
+            switch (dir) {
+                case UP:
+                    redFirst = (location[1] < location[3]);
+                    break;
+                case DOWN:
+                    redFirst = (location[1] > location[3]);
+                    break;
+                case LEFT:
+                    redFirst = (location[0] < location[2]);
+                    break;
+                case RIGHT:
+                default:
+                    redFirst = (location[0] > location[2]);
+                    break;
+            }
+
+            boolean redInHole = false;
+            boolean blueInHole = false;
+
+            // 실제 한 번 기울이는 로직
+            if (redFirst) {
+                int[] r = moveBall(location[0], location[1], dir, RED, copyMap);
+                redInHole = (r[2] == 1);
+                location[0] = r[0];
+                location[1] = r[1];
+
+                int[] b = moveBall(location[2], location[3], dir, BLUE, copyMap);
+                blueInHole = (b[2] == 1);
+                location[2] = b[0];
+                location[3] = b[1];
+            } else {
+                int[] b = moveBall(location[2], location[3], dir, BLUE, copyMap);
+                blueInHole = (b[2] == 1);
+                location[2] = b[0];
+                location[3] = b[1];
+
+                int[] r = moveBall(location[0], location[1], dir, RED, copyMap);
+                redInHole = (r[2] == 1);
+                location[0] = r[0];
+                location[1] = r[1];
+            }
+
+            if (blueInHole) {
+                return;
+            }
+
+            if (redInHole) {
+                int moveCount = i + 1; // 현재까지 기울인 횟수
+                if (answer == -1 || answer > moveCount) {
+                    answer = moveCount;
+                }
+                return;
+            }
+        }
+    }
+
+    static void backTrack(int depth) {
+        if (depth == MAX_MOVE) {
+            moveBoard();
             return;
         }
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                // 빈 공간이거나, 방문하지 않은 곳이라면 탐색
-                if (!visitedWall.contains(i * M + j) && map[i][j] == 0) {
-                    visitedWall.add(i * M + j);
-                    checkWall();
-                    visitedWall.remove(i * M + j);
-                }
-            }
+        for (int i = 0; i <= RIGHT; i++) {
+            if (!move.isEmpty() && move.get(move.size() - 1) == i)
+                continue;
+            move.add(i);
+            backTrack(depth + 1);
+            move.remove(move.size() - 1);
         }
     }
 
     public static void main(String[] args) throws Exception {
         // System.setIn(new FileInputStream("src/input.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+        map = new char[n][m];
+        move = new ArrayList<>();
+        answer = -1;
 
-        answer = 0;
-        safeArea = 0;
-        int[] raw1 = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        N = raw1[0];
-        M = raw1[1];
-        map = new int[N][M];
-        visitedWall = new HashSet<>();
-
-        for (int i = 0; i < N; i++) {
-            int[] raw2 = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-            for (int j = 0; j < M; j++) {
-                map[i][j] = raw2[j];
-                if (raw2[j] == 0) {
-                    safeArea++;
-                }
+        for (int i = 0; i < n; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < m; j++) {
+                map[i][j] = str.charAt(j);
             }
         }
-        // 무조건 3개의 벽이 설치되어야 하므로
-        safeArea -= WALL_COUNT;
 
-        // 벽이 세워질 공간을 백트래킹으로 탐색하기
-        checkWall();
-
-        // 답 출력
+        backTrack(0);
         System.out.println(answer);
     }
 }
