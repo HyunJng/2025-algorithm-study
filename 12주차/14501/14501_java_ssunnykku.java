@@ -6,7 +6,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        // 첫 줄: 데이터 개수
         int n = Integer.parseInt(br.readLine());
 
         int[] t = new int[n];
