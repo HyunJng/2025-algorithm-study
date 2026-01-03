@@ -1,9 +1,7 @@
-package 14주차.2110;
-
 import java.util.*;
 import java.io.*;
 
-public class 2110_java_Kyounglin{
+public class Main{
     static int n;
     static int[] arr;
     static int c;
