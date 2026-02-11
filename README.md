@@ -1,5 +1,5 @@
 # 2025-algorithm-study
-코딩테스트 대비 알고리즘 스터디 (2025.09.23 ~)
+코딩테스트 대비 알고리즘 스터디 (2025.09.23 ~ 2026.02.10)
 
 notion: https://www.notion.so/after-25f1d50dd03f80629c25fd93783c3f2d?source=copy_link
 
